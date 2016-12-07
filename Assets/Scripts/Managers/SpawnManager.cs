@@ -4,11 +4,32 @@ using UnityEngine;
 
 public class SpawnManager : MonoSingletone<SpawnManager>
 {
+    public List<Wave> waves = new List<Wave>();
     public List<Transform> spawnPoints = new List<Transform>();
-    public List<GameObject> spawnedPrefabs = new List<GameObject>();
+ 
 
-    public void SpawnPrefab(int spawnedPrefabId, int spawnPointId)
+    IEnumerator SpawnWave(Wave spawnedWave)
     {
-        Instantiate(spawnedPrefabs[spawnedPrefabId], spawnPoints[spawnPointId].position, spawnPoints[spawnPointId].rotation);
+        for(int i = 0; i < spawnedWave.wave.Count; i++)
+        {
+            for(int j = 0; j < spawnedWave.wave[i].amount; j++)
+            {
+                SpawnEnemy(spawnedWave.wave[i].enemyType, spawnedWave.wave[i].spawnPointId);
+                yield return new WaitForSeconds(spawnedWave.wave[i].timeToNextSpawn);
+            }
+            yield return new WaitForSeconds(spawnedWave.timeToNextPartOfWave);
+        }       
+    }
+
+    public void SpawnEnemy(Enemy enemyPrefab, int spawnPointId)
+    {
+        Instantiate(enemyPrefab, spawnPoints[spawnPointId].position, spawnPoints[spawnPointId].rotation);
+    }
+
+
+    //test
+    void Start()
+    {
+        StartCoroutine(SpawnWave(waves[0])); 
     }
 }
